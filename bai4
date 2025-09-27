@@ -1,0 +1,149 @@
+using System;
+
+public class NumberBaseConverter
+{
+    public static void Main(string[] args)
+    {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.Title = "Chương trình Chuyển đổi Hệ Cơ số (2, 10, 16)";
+
+        bool running = true;
+        while (running)
+        {
+            Console.Clear();
+            Console.WriteLine("║      CHƯƠNG TRÌNH CHUYỂN ĐỔI HỆ CƠ SỐ         ║");
+            Console.WriteLine("║            (2, 10, 16)                        ║");
+            
+            // 1. Thực hiện chuyển đổi
+            ProcessConversion();
+            
+            Console.WriteLine("╚═══════════════════════════════════════════════╝");
+
+            Console.WriteLine("\nBạn có muốn thực hiện thêm một lần chuyển đổi nữa không?");
+            Console.Write("Nhấn Enter để tiếp tục hoặc gõ 'n'/'exit' để thoát: ");
+            string choice = Console.ReadLine()?.ToLower();
+
+            if (choice == "n" || choice == "exit")
+            {
+                running = false;
+                Console.WriteLine("Cảm ơn bạn đã sử dụng chương trình! Tạm biệt.");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Hiển thị menu lựa chọn hệ cơ số và lấy lựa chọn hợp lệ từ người dùng.
+    /// </summary>
+    /// <param name="type">Loại lựa chọn: "Đầu vào" hoặc "Đầu ra".</param>
+    /// <returns>Hệ cơ số đã chọn (2, 10, hoặc 16).</returns>
+    private static int GetBaseChoice(string type)
+    {
+        int baseNum = 0;
+        bool isValid = false;
+
+        while (!isValid)
+        {
+            Console.WriteLine($"\n--- Chọn hệ cơ số {type} ---");
+            Console.WriteLine("1. Nhị phân (Cơ số 2)");
+            Console.WriteLine("2. Thập phân (Cơ số 10)");
+            Console.WriteLine("3. Thập lục phân (Cơ số 16)");
+            Console.Write("Nhập lựa chọn (1, 2 hoặc 3): ");
+
+            if (int.TryParse(Console.ReadLine(), out int choice))
+            {
+                switch (choice)
+                {
+                    case 1:
+                        baseNum = 2;
+                        isValid = true;
+                        break;
+                    case 2:
+                        baseNum = 10;
+                        isValid = true;
+                        break;
+                    case 3:
+                        baseNum = 16;
+                        isValid = true;
+                        break;
+                    default:
+                        Console.WriteLine("Lựa chọn không hợp lệ. Vui lòng nhập 1, 2 hoặc 3.");
+                        break;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nhập không hợp lệ. Vui lòng nhập số.");
+            }
+        }
+        return baseNum;
+    }
+
+    /// <summary>
+    /// Thực hiện toàn bộ quá trình: lấy input, xử lý và in output.
+    /// </summary>
+    private static void ProcessConversion()
+    {
+        // 1. Chọn hệ cơ số đầu vào
+        int inputBase = GetBaseChoice("Đầu vào");
+        
+        // 2. Chọn hệ cơ số đầu ra
+        int outputBase = GetBaseChoice("Đầu ra");
+        
+        // 3. Nhập giá trị đầu vào
+        Console.Write($"\nNhập giá trị số ({GetBaseName(inputBase)}): ");
+        string inputValue = Console.ReadLine()?.Trim().ToUpper();
+
+        if (string.IsNullOrEmpty(inputValue))
+        {
+            Console.WriteLine("Giá trị đầu vào không được để trống.");
+            return;
+        }
+
+        try
+        {
+            // Bước 1: Chuyển đổi từ hệ cơ số đầu vào sang hệ Thập phân (int)
+            // Cú pháp: Convert.ToInt32(string s, int fromBase)
+            int decimalValue = Convert.ToInt32(inputValue, inputBase);
+
+            // Bước 2: Chuyển đổi từ hệ Thập phân (int) sang hệ cơ số đầu ra
+            // Cú pháp: Convert.ToString(int value, int toBase)
+            string outputValue = Convert.ToString(decimalValue, outputBase).ToUpper();
+
+            // 4. In kết quả
+            Console.WriteLine("\n***************************************************");
+            Console.WriteLine($"KẾT QUẢ CHUYỂN ĐỔI:");
+            Console.WriteLine($"  Hệ cơ số Đầu vào: {GetBaseName(inputBase)} (Cơ số {inputBase})");
+            Console.WriteLine($"  Giá trị Đầu vào:  {inputValue}");
+            Console.WriteLine($"  Hệ cơ số Đầu ra:  {GetBaseName(outputBase)} (Cơ số {outputBase})");
+            Console.WriteLine($"  Giá trị Đầu ra:   {outputValue}");
+            Console.WriteLine("***************************************************");
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("\n!!! LỖI: Giá trị nhập vào không hợp lệ cho hệ cơ số đã chọn.");
+            Console.WriteLine($"Đảm bảo chỉ sử dụng: 0-1 (Binary), 0-9 (Decimal), 0-9 và A-F (Hexadecimal).");
+        }
+        catch (OverflowException)
+        {
+            Console.WriteLine("\n!!! LỖI: Giá trị nhập vào quá lớn cho kiểu dữ liệu số nguyên (Int32) của chương trình.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"\n!!! LỖI XẢY RA: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Hàm tiện ích để lấy tên hệ cơ số dựa trên giá trị (2, 10, 16).
+    /// </summary>
+    private static string GetBaseName(int baseNum)
+    {
+        return baseNum switch
+        {
+            2 => "Nhị phân (BIN)",
+            10 => "Thập phân (DEC)",
+            16 => "Thập lục phân (HEX)",
+            _ => "Không xác định"
+        };
+    }
+}
